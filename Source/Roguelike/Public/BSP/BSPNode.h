@@ -25,6 +25,11 @@ class ROGUELIKE_API UBSPNode : public UObject
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere)
+	FString TestString;
+	void PrintTest();
+
+public:
 	const int ChildCount = 2;
 
 	UBSPNode* Parent = nullptr;
@@ -35,6 +40,8 @@ public:
 	bool bDoSplitVertically = false;
 	bool bIsResultOfVerticalSplit = false;
 	int MaxLevel = 0;
+
+	//TODO: Add Unity Specific Rects: rect, room, corridor
 
 	ETileType TileType;
 

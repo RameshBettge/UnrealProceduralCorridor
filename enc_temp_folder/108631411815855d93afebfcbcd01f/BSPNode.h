@@ -4,12 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-//#include "TileType.h"
 #include "BSPNode.generated.h"
 
 /**
  *
  */
+
+UENUM()
+enum class ETileType : uint8
+{
+	Invalid, 
+	Floor, 
+	Wall,
+	Corridor
+};
+
 UCLASS()
 class ROGUELIKE_API UBSPNode : public UObject
 {
@@ -27,7 +36,12 @@ public:
 	bool bIsResultOfVerticalSplit = false;
 	int MaxLevel = 0;
 
-	
+	ETileType TileType;
+
+	int GetLevel();
+
+private:
+	int Level;
 
 };
 

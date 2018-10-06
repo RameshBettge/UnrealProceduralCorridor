@@ -2,6 +2,7 @@
 
 #include "BSPNode.h"
 
-
-
-
+int UBSPNode::GetLevel()
+{
+	return Level;
+}
