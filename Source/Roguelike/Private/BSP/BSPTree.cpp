@@ -28,9 +28,10 @@ void UBSPTree::BeginPlay()
 
 	for (int i = 0; i < 5; i++)
 	{
-		UBSPNode* Node = NewObject<UBSPNode>();
+		//UBSPNode* Node = NewObject<UBSPNode>();
+		FIntRect Rect;
+		UBSPNode* Node = UBSPNode::CreateNode(nullptr, Rect, false);
 		Node->TestString = TEXT("I am Node number ") + FString::FromInt(i);
-		Node->PrintTest();
 		AllNodes.Emplace(Node);
 	}
 

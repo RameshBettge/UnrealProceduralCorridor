@@ -30,6 +30,8 @@ public:
 	void PrintTest();
 
 public:
+	UBSPNode();
+
 	const int ChildCount = 2;
 
 	UBSPNode* Parent = nullptr;
@@ -42,13 +44,16 @@ public:
 	int MaxLevel = 0;
 
 	//TODO: Add Unity Specific Rects: rect, room, corridor
+	FIntRect Rect;
 
 	ETileType TileType;
 
 	int GetLevel();
+	static UBSPNode* CreateNode(UBSPNode* Parent, FIntRect Rect, bool bDoSplitVertically);
 
 private:
 	int Level;
 
+	bool bIsInitialized;
 };
 
