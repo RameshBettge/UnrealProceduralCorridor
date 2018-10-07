@@ -1,16 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BSPNode.h"
-
-UBSPNode::UBSPNode()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("BSPNode constructer called."));
-}
-
-void UBSPNode::PrintTest() 
-{
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *TestString);
-}
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 int UBSPNode::GetLevel()
 {
@@ -25,10 +17,11 @@ UBSPNode* UBSPNode::CreateNode(UBSPNode * Parent, FIntRect Rect, bool bDoSplitVe
 	Node->bDoSplitVertically = bDoSplitVertically;
 	Node->bIsResultOfVerticalSplit = !bDoSplitVertically;
 
-	UE_LOG(LogTemp, Warning, TEXT("BSPNode properly created via UBSPNode::CreateNode"))
-	/// TODO: Create rest of this 'constructor'
+	Node->bIsInitialized = true;
 
-	return Node;
+		/// TODO: Create rest of this 'constructor'
+
+		return Node;
 }
 
 

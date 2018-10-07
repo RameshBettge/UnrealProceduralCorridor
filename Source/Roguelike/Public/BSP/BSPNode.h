@@ -25,12 +25,6 @@ class ROGUELIKE_API UBSPNode : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere)
-	FString TestString;
-	void PrintTest();
-
-public:
-	UBSPNode();
 
 	const int ChildCount = 2;
 
@@ -54,6 +48,6 @@ public:
 private:
 	int Level;
 
-	bool bIsInitialized;
+	bool bIsInitialized = false;
 };
 

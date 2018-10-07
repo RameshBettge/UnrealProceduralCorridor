@@ -22,31 +22,20 @@ void UBSPTree::BeginPlay()
 
 
 	// TEST
-	Root = NewObject<UBSPNode>();
-	Root->TestString = "Hello, I am the root.";
-	AllNodes.Emplace(Root);
-
 	for (int i = 0; i < 5; i++)
 	{
 		//UBSPNode* Node = NewObject<UBSPNode>();
 		FIntRect Rect;
 		UBSPNode* Node = UBSPNode::CreateNode(nullptr, Rect, false);
-		Node->TestString = TEXT("I am Node number ") + FString::FromInt(i);
 		AllNodes.Emplace(Node);
 	}
 
-	for (UBSPNode* Node : AllNodes)
-	{
-		Node->PrintTest();
-	}
+	//for (UBSPNode* Node : AllNodes)
+	//{
+	//	Node->DO STH;
+	//}
 
-	/*for (int i = 0; i < AllNodes.Num(); i++)
-	{
-		AllNodes[i].PrintTest();
-	}*/
 	// END TEST
-
-	// ...
 
 }
 

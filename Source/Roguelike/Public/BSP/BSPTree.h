@@ -27,6 +27,7 @@ public:
 	UBSPTree();
 	UPROPERTY(VisibleAnywhere)
 	UBSPNode* Root;
+	UPROPERTY(VisibleAnywhere)
 	TArray<UBSPNode*> AllNodes;
 	TArray<TArray<UBSPNode*>> NodeLists;
 	int MinNodeWidth;
@@ -42,6 +43,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/// TODO: Make sure UBSPNodes can only be used if properly initialized.
 	void Split(UBSPNode* Node);
 	void CreateNodeLists();
 	void GenerateRooms();
@@ -50,8 +52,8 @@ public:
 	UBSPNode FindFarthestNode(EFarthest Farthest, TArray<UBSPNode*> candidates);
 	TArray<UBSPNode> FindOverlapping(UBSPNode* Node, TArray<UBSPNode*> candidates, bool xDim);
 
-	//TODO: Add float halfOverlap() which takes Unity specific Rects as arguments.
+	//TODO: Add Initialize function. 
 
-private:
+	//TODO: Add float halfOverlap() which takes Unity specific Rects as arguments.
 
 };
