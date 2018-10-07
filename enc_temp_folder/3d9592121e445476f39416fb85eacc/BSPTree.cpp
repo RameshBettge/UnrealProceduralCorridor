@@ -23,7 +23,7 @@ void UBSPTree::BeginPlay()
 
 	// TEST
 
-	//StructNode = &FStructNode(GetOwner());
+	//StructNode = FStructNode(GetOwner());
 
 	for (int i = 0; i < 5; i++)
 	{

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BSPNode.h"
+#include "GameFramework/Actor.h"
 #include "BSPTree.generated.h"
 
 UENUM()
@@ -14,6 +15,24 @@ enum class EFarthest : uint8
 	Right, 
 	Bottom, 
 	Left
+};
+
+USTRUCT()
+struct FStructNode
+{
+	GENERATED_BODY()
+
+	//DONT USE! Always use constructer with parameters.
+	FStructNode()
+	{
+		UE_LOG(LogTemp, Error, TEXT("FStructNode's constructer was called without Parameters. This is a potential source for errors. Use Custom Constructor instead!"));
+	}
+
+	FStructNode(AActor* Tree)
+	{
+		FString Name = Tree->GetName();
+		UE_LOG(LogTemp, Error, TEXT("FStructNode's Custom Constructer was called by %s"), *Name);
+	}
 };
 
 
@@ -56,4 +75,6 @@ public:
 
 	//TODO: Add float halfOverlap() which takes Unity specific Rects as arguments.
 
+	//For Testing
+	FStructNode* StructNode;
 };
