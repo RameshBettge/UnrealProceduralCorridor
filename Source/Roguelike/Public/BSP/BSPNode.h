@@ -25,6 +25,7 @@ class ROGUELIKE_API UBSPNode : public UObject
 	GENERATED_BODY()
 
 public:
+	UBSPNode();
 
 	const int ChildCount = 2;
 

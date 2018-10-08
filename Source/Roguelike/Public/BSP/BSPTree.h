@@ -11,9 +11,9 @@
 UENUM()
 enum class EFarthest : uint8
 {
-	Top, 
-	Right, 
-	Bottom, 
+	Top,
+	Right,
+	Bottom,
 	Left
 };
 
@@ -22,43 +22,55 @@ struct FStructNode
 {
 	GENERATED_BODY()
 
-	//DONT USE! Always use constructer with parameters.
+		UPROPERTY(VisibleAnywhere)
+		float TestFloat = 10.f;
+
+		//DONT USE! Always use constructer with parameters.
 	FStructNode()
 	{
+		//Will also be called when a FStructNode-MemberVariable is unassigned
 		UE_LOG(LogTemp, Error, TEXT("FStructNode's constructer was called without Parameters. This is a potential source for errors. Use Custom Constructor instead!"));
 	}
 
-	FStructNode(AActor* Tree)
+	FStructNode(FStructNode* Node, float TestFloat)
 	{
-		FString Name = Tree->GetName();
-		UE_LOG(LogTemp, Error, TEXT("FStructNode's Custom Constructer was called by %s"), *Name);
+		this->TestFloat = TestFloat;
+		//FString Name = Tree->GetName();
+		//UE_LOG(LogTemp, Warning, TEXT("FStructNode's Custom Constructer was called."));
+	}
+
+	void PrintTest()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NodeTest"));
 	}
 };
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ROGUELIKE_API UBSPTree : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UBSPTree();
 	UPROPERTY(VisibleAnywhere)
-	UBSPNode* Root;
+		UBSPNode* Root;
+	UPROPERTY(VisibleAnywhere)
+	TArray<FStructNode> AllStructs;
 	UPROPERTY(VisibleAnywhere)
 	TArray<UBSPNode*> AllNodes;
 	TArray<TArray<UBSPNode*>> NodeLists;
 	int MinNodeWidth;
 	int MinNodeHeigth;
 	int NumberOfCorridors;
-	
+
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -75,6 +87,7 @@ public:
 
 	//TODO: Add float halfOverlap() which takes Unity specific Rects as arguments.
 
-	//For Testing
-	FStructNode* StructNode;
+	/// For Testing
+	FStructNode* StructNode = nullptr;
+	FStructNode ConstStructNode = FStructNode(nullptr, 6.9f);
 };

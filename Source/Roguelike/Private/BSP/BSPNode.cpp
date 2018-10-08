@@ -4,6 +4,10 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+UBSPNode::UBSPNode() 
+{
+}
+
 int UBSPNode::GetLevel()
 {
 	return Level;
