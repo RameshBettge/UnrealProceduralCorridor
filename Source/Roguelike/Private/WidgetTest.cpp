@@ -28,7 +28,17 @@ void AWidgetTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	SetActorRotation(FQuat::Identity);
+
 	FVector Location = GetTransform().GetLocation();
-	DrawDebugLine(GetWorld(), Location, Location + MyVector, FColor::Magenta, false, .0f, (uint8)'\000', 10.f);
+	FVector LookDirection = MyVector.GetSafeNormal();
+	//DrawDebugLine(GetWorld(), Location, Location + MyVector, FColor::Magenta, false, .0f, (uint8)'\000', 10.f);
+
+	Cube->SetActorLocation(Location);
+	Cube->SetActorRotation(LookDirection.ToOrientationQuat());
+	FVector CubeScale = Cube->GetActorScale();
+	CubeScale.Y = Width;
+	CubeScale.X = MyVector.Size()  * 0.01f;
+	Cube->SetActorScale3D(CubeScale);
 }
 

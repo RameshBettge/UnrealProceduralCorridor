@@ -31,9 +31,15 @@ public:
 	UPROPERTY(EditAnywhere, meta = (MakeEditWidget))
 		FVector MyVector = FVector(50.0f, .0f, 0.f);
 
+	UPROPERTY(EditAnywhere)
+	AActor* Cube;
+	UPROPERTY(EditAnywhere)
+	float Width = 2.f;
+
 	// Only works if Realtime in ViewportOptions is enabled
 	UPROPERTY(EditAnywhere)
 	bool TickInEditor = true;
+
 };
 
 
