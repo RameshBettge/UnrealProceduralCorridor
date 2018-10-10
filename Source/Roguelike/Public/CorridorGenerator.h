@@ -42,6 +42,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Debugging")
 		TArray<UStaticMeshComponent*> Supports;
+	UPROPERTY(EditAnywhere, Category = "Debugging")
+		bool bGenerateInTick;
+
 	
 
 private:
@@ -59,6 +62,8 @@ private:
 private:
 	float GetPlanarMagnitude(FVector);
 
-	void CreateSupports(int NumberOfSupports, float YPos, FString SideName);
+	void CreateSupports();
+	void ClearSupports();
+	void InstantiateSupportRow(int NumberOfSupports, float YPos, FString SideName);
 	UStaticMeshComponent* InstantiateMesh(UStaticMesh* Mesh, USceneComponent* Parent, FName MeshName = TEXT("Mesh"));
 };

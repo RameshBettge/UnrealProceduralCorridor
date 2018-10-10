@@ -27,11 +27,9 @@ void ACorridorGenerator::BeginPlay()
 
 	UStaticMeshComponent* FloorComponent = InstantiateMesh(Floor, FloorScaler, FName("Floor"));
 	UStaticMeshComponent* RoofComponent = InstantiateMesh(Roof, RoofScaler, FName("Roof"));
-
-	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / RoofSupportSpacing);
-	CreateSupports(NumberOfSupports, (Width * 0.5f) - RoofSupportEdgeOffset, "R_");
-	CreateSupports(NumberOfSupports, (Width * -0.5f) + RoofSupportEdgeOffset, "L_");
 	//UE_LOG(LogTemp, Warning, TEXT("Setting Mesh!"));
+
+	CreateSupports();
 }
 
 float ACorridorGenerator::GetPlanarMagnitude(FVector V)
@@ -40,7 +38,26 @@ float ACorridorGenerator::GetPlanarMagnitude(FVector V)
 	return V.Size();
 }
 
-void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FString SideName)
+
+
+void ACorridorGenerator::CreateSupports()
+{
+	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / RoofSupportSpacing);
+	InstantiateSupportRow(NumberOfSupports, (Width * 0.5f) - RoofSupportEdgeOffset, "R_");
+	InstantiateSupportRow(NumberOfSupports, (Width * -0.5f) + RoofSupportEdgeOffset, "L_");
+}
+
+void ACorridorGenerator::ClearSupports()
+{
+	for (UMeshComponent* Component : Supports)
+	{
+		Component->UnregisterComponent();
+		Component->DestroyComponent();
+	}
+	Supports.Empty();
+}
+
+void ACorridorGenerator::InstantiateSupportRow(int NumberOfSupports, float YPos, FString SideName)
 {
 	if (!RoofSupport)
 	{
@@ -60,7 +77,7 @@ void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FStrin
 		float XPos = RoofSupportSpacing * (i + 0.5f);
 		float XPercentage = XPos / GetPlanarMagnitude(Controller);
 
-		float ZPos = XPercentage * abs(Controller.Z);
+		float ZPos = XPercentage * Controller.Z;
 
 		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos));
 		Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
@@ -98,6 +115,7 @@ void ACorridorGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	/// TODO: This function has to happen at least once but be only repeated if bGenerateInTick is true --> Extract function
 	FloorScaler->SetRelativeScale3D(FVector(Controller.Size() / 100.f, Width, 1.f));
 	RoofScaler->SetRelativeScale3D(FVector(Controller.Size() / 100.f, Width, 1.f));
 	FVector LookDirection = Controller.GetSafeNormal();
@@ -108,6 +126,13 @@ void ACorridorGenerator::Tick(float DeltaTime)
 	FloorScaler->SetRelativeRotation(LookDirection.ToOrientationQuat());
 	RoofScaler->SetRelativeRotation(LookDirection.ToOrientationQuat());
 	ZRotator->SetRelativeRotation(PlanarLookDirection.ToOrientationQuat());
+
+	if(bGenerateInTick)
+	{
+		RoofScaler->SetRelativeLocation(GetActorLocation() + FVector(0.f, 0.f, RoofHeight));
+		ClearSupports();
+		CreateSupports();
+	}
 }
 
 
