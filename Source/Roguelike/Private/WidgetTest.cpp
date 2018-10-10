@@ -34,6 +34,7 @@ void AWidgetTest::Tick(float DeltaTime)
 	FVector LookDirection = MyVector.GetSafeNormal();
 	//DrawDebugLine(GetWorld(), Location, Location + MyVector, FColor::Magenta, false, .0f, (uint8)'\000', 10.f);
 
+	if (!Cube) { return; }
 	Cube->SetActorLocation(Location);
 	Cube->SetActorRotation(LookDirection.ToOrientationQuat());
 	FVector CubeScale = Cube->GetActorScale();
