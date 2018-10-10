@@ -27,11 +27,22 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Floor;
-	
-	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* FloorComponent;
+	UPROPERTY(EditAnywhere)
+	UStaticMesh* Roof;
 
-	UPROPERTY(VisibleAnywhere)
-	TArray<UStaticMeshComponent*> Floors;
+	//UPROPERTY(EditAnywhere)
+	USceneComponent* Scaler;
 	
+	UPROPERTY(EditAnywhere)
+		float Width = 2.f;
+
+	/*UPROPERTY(VisibleAnywhere)
+	TArray<UStaticMeshComponent*> Floors;*/
+	
+	UPROPERTY(EditAnywhere, meta = (MakeEditWidget))
+	FVector Controller = FVector(50.0f, .0f, 0.f);
+	UPROPERTY(meta = (MakeEditWidget))
+	FVector Root = FVector::ZeroVector;
+
+	UStaticMeshComponent* InstantiateMesh(UStaticMesh* Mesh, USceneComponent* Parent, FName MeshName = TEXT("Mesh"));
 };

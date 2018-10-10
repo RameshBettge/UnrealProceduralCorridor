@@ -16,19 +16,47 @@ void ACorridorGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!Floor) { return; }
-	FloorComponent = NewObject<UStaticMeshComponent>(this);
-	FloorComponent->RegisterComponentWithWorld(GetWorld());
-	FloorComponent->SetRelativeLocation(GetActorLocation());
-	FloorComponent->SetStaticMesh(Floor);
+	Scaler = NewObject<USceneComponent>(this, TEXT("Scaler"));
+	// Set Scaler's location to local zero.
+	Scaler->SetRelativeLocation(GetActorLocation());
+
+	UStaticMeshComponent* FloorComponent = InstantiateMesh(Floor, Scaler, FName("Floor"));
+	UStaticMeshComponent* RoofComponent = InstantiateMesh(Roof, Scaler, FName("Roof"));
+	
+	
 	//UE_LOG(LogTemp, Warning, TEXT("Setting Mesh!"));
 	//Floors.Add(FloorComponent);
 }
+
+
 
 // Called every frame
 void ACorridorGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Scaler->SetRelativeScale3D(FVector(Controller.Size() / 100.f, Width, 1.f));
+	FVector LookDirection = Controller.GetSafeNormal();
+	Scaler->SetRelativeRotation(LookDirection.ToOrientationQuat());
+	//Cube->SetActorRotation(LookDirection.ToOrientationQuat());
+
 }
+
+UStaticMeshComponent * ACorridorGenerator::InstantiateMesh(UStaticMesh * Mesh, USceneComponent* Parent, FName MeshName)
+{
+	if(!Mesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("MeshPointer is a nullptr!"));
+		return nullptr;
+	}
+
+	UStaticMeshComponent* MeshComponent = NewObject<UStaticMeshComponent>(Parent, MeshName);
+
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
+	MeshComponent->AttachToComponent(Parent, Rules);
+	MeshComponent->RegisterComponentWithWorld(GetWorld());
+	MeshComponent->SetStaticMesh(Mesh);
+	return MeshComponent;
+}
+
 
