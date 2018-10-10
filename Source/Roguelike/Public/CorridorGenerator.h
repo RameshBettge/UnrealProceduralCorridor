@@ -48,11 +48,20 @@ private:
 	UPROPERTY(meta = (MakeEditWidget))
 	FVector Root = FVector::ZeroVector;
 
+	/// UProperties are set so I can move the Containers.
+	UPROPERTY(EditAnywhere, Category = "Debugging")
 	USceneComponent* ZRotator;
+	UPROPERTY(EditAnywhere, Category = "Debugging")
 	USceneComponent* FloorScaler;
+	UPROPERTY(EditAnywhere, Category = "Debugging")
 	USceneComponent* RoofScaler;
 
+	// TODO: Find out why RoofSupports are always about 13 cm off the ground if this value isn't applied.
+	const float MagicSupportOffset = -13;
+
 private:
+	float GetPlanarMagnitude(FVector);
+
 	void CreateSupports(int NumberOfSupports, float YPos, FString SideName);
 	UStaticMeshComponent* InstantiateMesh(UStaticMesh* Mesh, USceneComponent* Parent, FName MeshName = TEXT("Mesh"));
 };

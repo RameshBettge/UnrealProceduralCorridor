@@ -6,6 +6,7 @@
 .vs/
 
 # Custom
+enc_temp_folder/*
 
 
 # Compiled Object files

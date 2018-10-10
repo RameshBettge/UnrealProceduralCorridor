@@ -28,10 +28,16 @@ void ACorridorGenerator::BeginPlay()
 	UStaticMeshComponent* FloorComponent = InstantiateMesh(Floor, FloorScaler, FName("Floor"));
 	UStaticMeshComponent* RoofComponent = InstantiateMesh(Roof, RoofScaler, FName("Roof"));
 
-	int NumberOfSupports = FGenericPlatformMath::FloorToInt(Controller.Size() / RoofSupportSpacing);
+	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / RoofSupportSpacing);
 	CreateSupports(NumberOfSupports, (Width * 0.5f) - RoofSupportEdgeOffset, "R_");
 	CreateSupports(NumberOfSupports, (Width * -0.5f) + RoofSupportEdgeOffset, "L_");
 	//UE_LOG(LogTemp, Warning, TEXT("Setting Mesh!"));
+}
+
+float ACorridorGenerator::GetPlanarMagnitude(FVector V)
+{
+	V.Z = 0.f;
+	return V.Size();
 }
 
 void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FString SideName)
@@ -41,10 +47,6 @@ void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FStrin
 		UE_LOG(LogTemp, Error, TEXT("RoofSupport is unassigned!"));
 		return;
 	}
-	//USceneComponent* Holder = NewObject<USceneComponent>(this, TEXT("Holder"));
-
-	/// TODO: This calculation is inaccurate. Base Z Position on XPosition / Controller.X
-	float Z_Increment = Controller.Z / NumberOfSupports;
 
 	for (int i = 0; i < NumberOfSupports; i++)
 	{
@@ -54,7 +56,16 @@ void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FStrin
 		SupportName += FString::FromInt(i);
 		UStaticMeshComponent* Support = InstantiateMesh(RoofSupport, ZRotator, FName(*SupportName));
 
-		Support->SetRelativeLocation(FVector(RoofSupportSpacing * (i + 0.5f), YPos * 100.f, Z_Increment * i));
+
+		float XPos = RoofSupportSpacing * (i + 0.5f);
+		float XPercentage = XPos / GetPlanarMagnitude(Controller);
+
+		float ZPos = XPercentage * abs(Controller.Z);
+
+		/// Could still be used to debug MagicSupportOffset
+		//UE_LOG(LogTemp, Warning, TEXT("XPos = %f, XPercentage = %f, ZMax = %f, ZPos = %f"), XPos, XPercentage, Controller.Z, ZPos);
+
+		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos + MagicSupportOffset));
 		Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
 		Supports.Add(Support);
 	}
@@ -68,7 +79,7 @@ UStaticMeshComponent * ACorridorGenerator::InstantiateMesh(UStaticMesh * Mesh, U
 		return nullptr;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Instantiating %s"), *MeshName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Instantiating %s"), *MeshName.ToString());
 
 
 	UStaticMeshComponent* MeshComponent = NewObject<UStaticMeshComponent>(Parent, MeshName);
