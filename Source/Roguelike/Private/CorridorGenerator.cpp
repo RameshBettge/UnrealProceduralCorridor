@@ -62,10 +62,7 @@ void ACorridorGenerator::CreateSupports(int NumberOfSupports, float YPos, FStrin
 
 		float ZPos = XPercentage * abs(Controller.Z);
 
-		/// Could still be used to debug MagicSupportOffset
-		//UE_LOG(LogTemp, Warning, TEXT("XPos = %f, XPercentage = %f, ZMax = %f, ZPos = %f"), XPos, XPercentage, Controller.Z, ZPos);
-
-		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos + MagicSupportOffset));
+		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos));
 		Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
 		Supports.Add(Support);
 	}

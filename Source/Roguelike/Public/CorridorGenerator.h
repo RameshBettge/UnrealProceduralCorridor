@@ -56,9 +56,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Debugging")
 	USceneComponent* RoofScaler;
 
-	// TODO: Find out why RoofSupports are always about 13 cm off the ground if this value isn't applied.
-	const float MagicSupportOffset = -13;
-
 private:
 	float GetPlanarMagnitude(FVector);
 
