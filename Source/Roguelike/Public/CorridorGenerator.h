@@ -12,37 +12,47 @@ UCLASS()
 class ROGUELIKE_API ACorridorGenerator : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ACorridorGenerator();
 
-protected:
-	// Called when the game starts or when spawned
+public:	
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
+	ACorridorGenerator();
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
+public:
+	UPROPERTY(EditAnywhere, Category ="Meshes")
 	UStaticMesh* Floor;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Meshes")
 	UStaticMesh* Roof;
+	UPROPERTY(EditAnywhere, Category = "Meshes")
+	UStaticMesh* RoofSupport;
 
-	//UPROPERTY(EditAnywhere)
-	USceneComponent* Scaler;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Size Parameters")
 		float Width = 2.f;
 
-	/*UPROPERTY(VisibleAnywhere)
-	TArray<UStaticMeshComponent*> Floors;*/
-	
-	UPROPERTY(EditAnywhere, meta = (MakeEditWidget))
+	UPROPERTY(EditAnywhere, Category = "Size Parameters", meta = (MakeEditWidget))
 	FVector Controller = FVector(50.0f, .0f, 0.f);
+
+	UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
+	float RoofHeight = 200.f;
+	UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
+	float RoofSupportSpacing = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
+		float RoofSupportEdgeOffset = 30.f;
+
+	UPROPERTY(EditAnywhere, Category = "Debugging")
+		TArray<UStaticMeshComponent*> Supports;
+	
+
+private:
 	UPROPERTY(meta = (MakeEditWidget))
 	FVector Root = FVector::ZeroVector;
 
+	USceneComponent* ZRotator;
+	USceneComponent* FloorScaler;
+	USceneComponent* RoofScaler;
+
+private:
+	void CreateSupports(int NumberOfSupports, float YPos, FString SideName);
 	UStaticMeshComponent* InstantiateMesh(UStaticMesh* Mesh, USceneComponent* Parent, FName MeshName = TEXT("Mesh"));
 };
