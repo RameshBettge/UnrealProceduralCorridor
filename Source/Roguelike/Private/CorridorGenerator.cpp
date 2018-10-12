@@ -220,9 +220,11 @@ void ACorridorGenerator::SetContainerRotation(FCorridorElement Element)
 
 void ACorridorGenerator::CreateModularRow(FCorridorElement Element)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Creating Row..."));
+
 	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / Element.Spacing);
-	InstantiateSupportRow(NumberOfSupports, 1, "R_");
-	InstantiateSupportRow(NumberOfSupports, -1, "L_");
+	InstantiateModularRow(Element, NumberOfSupports, 1, "R_");
+	InstantiateModularRow(Element, NumberOfSupports, -1, "L_");
 }
 
 void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName)
@@ -257,16 +259,16 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfS
 
 		float ZPos = XPercentage * Controller.Z;
 
-		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos));
+		Support->SetRelativeLocation(FVector(XPos, YPos* dir, ZPos));
 
-		if (E.YSize == 0.f) 
+	/*	if (E.YSize == 0.f) 
 		{
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, E.YSize / 100.f));
 		}
 		else 
-		{
+		{*/
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
-		}
+		//}
 	}
 }
 
