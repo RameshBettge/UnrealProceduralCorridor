@@ -160,8 +160,19 @@ void ACorridorGenerator::CreateElement(FCorridorElement E)
 	USceneComponent* Container = nullptr;
 	if (E.bIsRow)
 	{
-		if (!RowsContainer) { RowsContainer = NewObject<USceneComponent>(this, TEXT("Rows Container")); }
-		Container = RowsContainer;
+
+		/*if (!RowsContainer)
+		{*/
+			/// TODO: Each time an Element is a row there has to be a new rowsContainer created or the application will crash. Find out why!
+			RowsContainer = NewObject<USceneComponent>(this, TEXT("Rows Container"));
+			Container = RowsContainer;
+			E.Container = Container;
+			// TODO: Check if I shold use SetContainerLocation
+			RowsContainer->SetRelativeLocation(GetActorLocation());
+
+			SetContainerRotation(E, true);
+		//}
+
 		E.Container = Container;
 		CreateModularRow(E);
 	}
@@ -176,10 +187,10 @@ void ACorridorGenerator::CreateElement(FCorridorElement E)
 		E.Container = Container;
 
 		SetContainerScale(E);
-		SetContainerRotation(E);
 
+		SetContainerRotation(E);
 		InstantiateMesh(E.Mesh, Container, *E.ElementName);
-	SetContainerPosition(E);
+		SetContainerPosition(E);
 	}
 
 
@@ -208,26 +219,35 @@ void ACorridorGenerator::SetContainerScale(FCorridorElement Element)
 	Element.Container->SetRelativeScale3D(FVector(Controller.Size() * 0.01f, Element.width * 0.01f, 1.f));
 }
 
-void ACorridorGenerator::SetContainerRotation(FCorridorElement Element)
+void ACorridorGenerator::SetContainerRotation(FCorridorElement Element, bool bPlanar)
 {
 	FVector LookDirection = Controller.GetSafeNormal();
 	FVector PlanarLookDirection = LookDirection;
 	PlanarLookDirection.Z = 0.f;
 	PlanarLookDirection = PlanarLookDirection.GetSafeNormal();
 
+	if(bPlanar)
+	{
+		LookDirection.Z = 0.f;
+		LookDirection = LookDirection.GetSafeNormal();
+	}
+
 	Element.Container->SetRelativeRotation(LookDirection.ToOrientationQuat());
 }
 
 void ACorridorGenerator::CreateModularRow(FCorridorElement Element)
 {
+
 	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / Element.Spacing);
-	InstantiateSupportRow(NumberOfSupports, 1, "R_");
-	InstantiateSupportRow(NumberOfSupports, -1, "L_");
+	InstantiateModularRow(Element, NumberOfSupports, 1, "R_");
+	InstantiateModularRow(Element, NumberOfSupports, -1, "L_");
 }
 
 void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName)
 {
 	/// TODO: calculate the YPos (/ OffsetMultiplicator) in a seperate function
+
+
 
 	if (E.bUseAutoEdgeOffset)
 	{
@@ -245,7 +265,6 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfS
 
 	for (int i = 0; i < NumberOfSupports; i++)
 	{
-
 		FString SupportName = SideName;
 		SupportName += E.ElementName;
 		SupportName += FString::FromInt(i);
@@ -257,16 +276,16 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfS
 
 		float ZPos = XPercentage * Controller.Z;
 
-		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos));
+		Support->SetRelativeLocation(FVector(XPos, YPos * dir, ZPos));
 
-		if (E.YSize == 0.f) 
+	/*	if (E.YSize == 0.f)
 		{
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, E.YSize / 100.f));
 		}
-		else 
-		{
+		else
+		{*/
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
-		}
+		//}
 	}
 }
 

@@ -30,7 +30,6 @@ struct FCorridorElement
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bUseAutoEdgeOffset"))
 	bool bEdgeOffset = false;
 
-
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bUseAutoEdgeOffset"))
 	float SideOffset = 0.f;
 
@@ -40,9 +39,11 @@ struct FCorridorElement
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bIsRow"))
 	float width;
 
+	// TODO: Make sure this can never be 0.
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 	float Spacing;
 
+	/// Todo: Make sure setting it to 0 actually works.
 	//If this is set to 0 the RoofHeight will be used.
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 		float YSize = 0.f;
@@ -141,7 +142,7 @@ private:
 	void CreateElement(FCorridorElement E);
 	void SetContainerPosition(FCorridorElement Element);
 	void SetContainerScale(FCorridorElement Element);
-	void SetContainerRotation(FCorridorElement Element);
+	void SetContainerRotation(FCorridorElement Element, bool planar = false);
 
 	void CreateModularRow(FCorridorElement Element);
 	void InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName);
