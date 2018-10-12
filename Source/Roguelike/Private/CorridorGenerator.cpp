@@ -189,6 +189,7 @@ void ACorridorGenerator::CreateElement(FCorridorElement E)
 		SetContainerScale(E);
 
 		SetContainerRotation(E);
+
 		InstantiateMesh(E.Mesh, Container, *E.ElementName);
 		SetContainerPosition(E);
 	}
@@ -223,6 +224,7 @@ void ACorridorGenerator::SetContainerRotation(FCorridorElement Element, bool bPl
 {
 	FVector LookDirection = Controller.GetSafeNormal();
 	FVector PlanarLookDirection = LookDirection;
+
 	PlanarLookDirection.Z = 0.f;
 	PlanarLookDirection = PlanarLookDirection.GetSafeNormal();
 
@@ -265,6 +267,7 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfS
 
 	for (int i = 0; i < NumberOfSupports; i++)
 	{
+
 		FString SupportName = SideName;
 		SupportName += E.ElementName;
 		SupportName += FString::FromInt(i);
