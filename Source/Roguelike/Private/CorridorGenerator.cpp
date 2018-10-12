@@ -163,6 +163,7 @@ void ACorridorGenerator::CreateElement(FCorridorElement E)
 		if (!RowsContainer) { RowsContainer = NewObject<USceneComponent>(this, TEXT("Rows Container")); }
 		Container = RowsContainer;
 		E.Container = Container;
+		CreateModularRow(E);
 	}
 	else
 	{
@@ -178,9 +179,9 @@ void ACorridorGenerator::CreateElement(FCorridorElement E)
 		SetContainerRotation(E);
 
 		InstantiateMesh(E.Mesh, Container, *E.ElementName);
+	SetContainerPosition(E);
 	}
 
-	SetContainerPosition(E);
 
 
 }
@@ -189,7 +190,6 @@ void ACorridorGenerator::SetContainerPosition(FCorridorElement Element)
 {
 	if (Element.bUseAutoEdgeOffset)
 	{
-		//Element.SideOffset = Element.width *0.5f;
 		Element.SideOffset = AutoEdgeOffset;
 		Element.bEdgeOffset = true;
 	}
@@ -220,16 +220,26 @@ void ACorridorGenerator::SetContainerRotation(FCorridorElement Element)
 
 void ACorridorGenerator::CreateModularRow(FCorridorElement Element)
 {
-	/*int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / RoofSupportSpacing);
-	InstantiateSupportRow(NumberOfSupports, (Width * 0.5f) - RoofSupportEdgeOffset, "R_");
-	InstantiateSupportRow(NumberOfSupports, (Width * -0.5f) + RoofSupportEdgeOffset, "L_");*/
+	int NumberOfSupports = FGenericPlatformMath::FloorToInt(GetPlanarMagnitude(Controller) / Element.Spacing);
+	InstantiateSupportRow(NumberOfSupports, 1, "R_");
+	InstantiateSupportRow(NumberOfSupports, -1, "L_");
 }
 
-void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfSupports, float YPos, FString SideName)
+void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName)
 {
+	/// TODO: calculate the YPos (/ OffsetMultiplicator) in a seperate function
+
+	if (E.bUseAutoEdgeOffset)
+	{
+		E.SideOffset = AutoEdgeOffset;
+		E.bEdgeOffset = true;
+	}
+
+	float YPos = E.bEdgeOffset ? FloorWidth * 0.5f - E.SideOffset : E.SideOffset;
+
 	if (!E.Mesh)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s is unassigned!"), E);
+		UE_LOG(LogTemp, Error, TEXT("%s is unassigned!"), *E.ElementName);
 		return;
 	}
 
@@ -249,14 +259,14 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement E, int NumberOfS
 
 		Support->SetRelativeLocation(FVector(XPos, YPos * 100.f, ZPos));
 
-		//if (E.YSize == 0.f) 
-		//{
-		//	//Support->SetRelativeScale3D(FVector(1.f, 1.f, E.YSize / 100.f));
-		//}
-		//else 
-		//{
+		if (E.YSize == 0.f) 
+		{
+			Support->SetRelativeScale3D(FVector(1.f, 1.f, E.YSize / 100.f));
+		}
+		else 
+		{
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
-		//}
+		}
 	}
 }
 

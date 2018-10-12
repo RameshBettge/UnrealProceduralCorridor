@@ -43,8 +43,9 @@ struct FCorridorElement
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 	float Spacing;
 
-	//UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
-	//	float YSize = 0.f;
+	//If this is set to 0 the RoofHeight will be used.
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
+		float YSize = 0.f;
 
 	USceneComponent* Container = nullptr;
 
@@ -100,12 +101,12 @@ private:
 		FVector Root = FVector::ZeroVector;
 
 	/// UProperties are set so I can move the Containers.
-	UPROPERTY(EditAnywhere, Category = "Debugging")
-		USceneComponent* ZRotator;
-	UPROPERTY(EditAnywhere, Category = "Debugging")
-		USceneComponent* FloorScaler;
-	UPROPERTY(EditAnywhere, Category = "Debugging")
-		USceneComponent* RoofScaler;
+	//UPROPERTY(EditAnywhere, Category = "Debugging")
+	//	USceneComponent* ZRotator;
+	//UPROPERTY(EditAnywhere, Category = "Debugging")
+	//	USceneComponent* FloorScaler;
+	//UPROPERTY(EditAnywhere, Category = "Debugging")
+	//	USceneComponent* RoofScaler;
 
 private:
 	float GetPlanarMagnitude(FVector);
@@ -121,6 +122,7 @@ private:
 	float FloorWidth;
 	UPROPERTY(EditAnywhere, Category = "Modular")
 	float RoofHeight;
+	// If this is set to 0 the floor width will be used.
 	UPROPERTY(EditAnywhere, Category = "Modular")
 	float RoofWidth;
 
@@ -142,5 +144,5 @@ private:
 	void SetContainerRotation(FCorridorElement Element);
 
 	void CreateModularRow(FCorridorElement Element);
-	void InstantiateModularRow(FCorridorElement E, int NumberOfSupports, float YPos, FString SideName);
+	void InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName);
 };
