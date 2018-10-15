@@ -67,6 +67,10 @@ public:
 	virtual void BeginPlay() override;
 	ACorridorGenerator();
 	virtual void Tick(float DeltaTime) override;
+	//virtual void EndPlay() override;
+	virtual void BeginDestroy() override;
+
+
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Meshes")
@@ -77,10 +81,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Size Parameters", meta = (MakeEditWidget))
 		FVector Controller = FVector(50.0f, .0f, 0.f);
 
-	UPROPERTY(EditAnywhere, Category = "Debugging")
-		bool bGenerateInTick;
-	UPROPERTY(EditAnywhere, Category = "Debugging", meta = (EditCondition = "bGenerateInTick"))
-		bool bTickInEditor;
+	// Deletes every object from the scene but does not clear any settings.
+	UPROPERTY(EditAnywhere, Category = "Debugging|Events")
+	bool UpdateSettings;
+	UPROPERTY(EditAnywhere, Category = "Debugging|Events")
+	bool ClearAll;
+	UPROPERTY(EditAnywhere, Category = "Debugging|Ticking")
+	bool bGenerateInTick;
+	UPROPERTY(EditAnywhere, Category = "Debugging|Ticking", meta = (EditCondition = "bGenerateInTick"))
+	bool bTickInEditor;
+
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
 
@@ -108,9 +118,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Modular")
 	TArray<FCorridorElement> Elements;
 
-	UPROPERTY(VisibleAnywhere)
 	FCorridorElement FloorElement;
-	UPROPERTY(VisibleAnywhere)
 	FCorridorElement RoofElement;
 
 	TArray<USceneComponent*> Containers;
@@ -125,7 +133,11 @@ private:
 	void CreateModularRow(FCorridorElement* Element);
 	void InstantiateModularRow(FCorridorElement* E, int NumberOfSupports, int dir, FString SideName);
 
-	void ClearRowContainer();
+	void ClearContainer(USceneComponent* Container, bool bDelete = false);
 
 	void CreateFloorAndRoof();
+	void UpdateCorridor();
+
+	void ClearEverything();
+
 };

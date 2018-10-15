@@ -12,7 +12,7 @@ ACorridorGenerator::ACorridorGenerator()
 
 bool ACorridorGenerator::ShouldTickIfViewportsOnly() const
 {
-	return bTickInEditor;
+	return (bTickInEditor || ClearAll);
 }
 
 void ACorridorGenerator::BeginPlay()
@@ -27,17 +27,35 @@ void ACorridorGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bGenerateInTick) { return; }
+	// GenerateOnce is set to false at the end of UpdateCorridor().
+	if (bGenerateInTick) { UpdateCorridor(); }
+	if(UpdateSettings)
+	{
+		ClearEverything();
+		CreateModular(true);
+		UpdateSettings = false;
+	}
 
+	if (ClearAll)
+	{
+		ClearEverything();
+		//CreateModular(true);
+		ClearAll = false;
+	}
+
+}
+
+void ACorridorGenerator::UpdateCorridor()
+{
 	// This makes adding Elements possible.
-	if (bTickInEditor) { CreateModular(); }
+	if (bGenerateInTick) { CreateModular(); }
 
-	// TODO: Check if values changed enough to justify instancing rows, floor and roof again. OR: Update only if key is pressed
+	// TODO: Check if values changed enough to justify instancing rows, floor and roof again.
 
 	if (RowsContainer)
 	{
 		SetContainerRotation(RowsContainer, true);
-		ClearRowContainer();
+		ClearContainer(RowsContainer);
 	}
 
 	for (FCorridorElement E : Elements)
@@ -57,7 +75,10 @@ void ACorridorGenerator::Tick(float DeltaTime)
 	}
 
 	CreateFloorAndRoof();
+
 }
+
+
 
 float ACorridorGenerator::GetPlanarMagnitude(FVector V)
 {
@@ -93,14 +114,18 @@ void ACorridorGenerator::CreateModular(bool bDisplayErrors)
 	for (int32 i = 0; i < Elements.Num(); i++)
 	{
 		/// Create Element, if it hasn't been created already. Important if bGenerateInTick == true
-		if (!Elements[i].Container) 
+		if (!Elements[i].Container)
 		{
-		CreateElement(&Elements[i], bDisplayErrors);
+			CreateElement(&Elements[i], bDisplayErrors);
+		}
+		else if(bDisplayErrors)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("already has a container"), *Elements[i].ElementName, *Elements[i].Container->GetName());
 		}
 	}
 }
 
-void ACorridorGenerator::CreateFloorAndRoof() 
+void ACorridorGenerator::CreateFloorAndRoof()
 {
 	if (RoofWidth == 0.f) { RoofWidth = FloorWidth; }
 
@@ -109,6 +134,8 @@ void ACorridorGenerator::CreateFloorAndRoof()
 	CreateElement(&FloorElement);
 	CreateElement(&RoofElement);
 }
+
+
 
 void ACorridorGenerator::CreateElement(FCorridorElement* E, bool bDisplayErrors)
 {
@@ -240,7 +267,7 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement* E, int NumberOf
 		float XPos = E->Spacing * (i + 0.5f);
 		float XPercentage = XPos / GetPlanarMagnitude(Controller);
 
-		float ZPos = XPercentage * Controller.Z;
+		float ZPos = (XPercentage * Controller.Z) + E->Height;
 
 		Support->SetRelativeLocation(FVector(XPos, YPos * dir, ZPos));
 
@@ -255,12 +282,15 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement* E, int NumberOf
 	}
 }
 
-void ACorridorGenerator::ClearRowContainer()
+void ACorridorGenerator::ClearContainer(USceneComponent* Container, bool bDelete)
 {
+	if (!Container) {  
+		UE_LOG(LogTemp, Warning, TEXT("Container already deleted!"));
+		return; }
 	TArray<USceneComponent*> Components;
 
 	//RowContainer->GetParentComponents(Components);
-	RowsContainer->GetChildrenComponents(true, Components);
+	Container->GetChildrenComponents(true, Components);
 
 	for (USceneComponent* Component : Components)
 	{
@@ -271,6 +301,53 @@ void ACorridorGenerator::ClearRowContainer()
 			Mesh->DestroyComponent();
 		}
 	}
+
+	if (bDelete)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Deleting %s!"), *Container->GetName());
+		Container->UnregisterComponent();
+		Container->DestroyComponent();
+	}
 }
 
+void ACorridorGenerator::ClearEverything()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("  ---- START CLEARING ----  "));
+
+
+	for (int32 i = 0; i<Elements.Num(); i++)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Clearing %s..."), *Elements[i].ElementName);
+
+		ClearContainer(Elements[i].Container, true);
+		Elements[i].Container = nullptr;
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Clearing FloorElement ..."));
+	ClearContainer(FloorElement.Container, true);
+	//UE_LOG(LogTemp, Warning, TEXT("Clearing RoofElement ..."));
+	ClearContainer(RoofElement.Container, true);
+	FloorElement.Container = nullptr;
+	RoofElement.Container = nullptr;
+
+	//UE_LOG(LogTemp, Warning, TEXT("  ----     CLEARED    ----  "));
+}
+
+void ACorridorGenerator::BeginDestroy()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Generator is destroyed."));
+	ClearEverything();
+
+	//TArray<USceneComponent*> Components;
+	//->GetParentComponents(Components);
+
+	/// This seems to be responsible for crashes, but might help avoiding leftover components 
+
+	//TSet<UActorComponent*> AComponents = GetOwner()->GetComponents();
+	//for (UActorComponent* Component : AComponents)
+	//{
+	//	UnregisterAllComponents();
+	//}
+
+	Super::BeginDestroy();
+}
 
