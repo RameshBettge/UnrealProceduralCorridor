@@ -34,6 +34,8 @@ void ACorridorGenerator::Tick(float DeltaTime)
 
 	for (FCorridorElement E : Elements)
 	{
+		if (!E.Container) { continue; }
+
 		if (E.bIsRow)
 		{
 			CreateElement(&E);
@@ -109,6 +111,12 @@ void ACorridorGenerator::CreateElement(FCorridorElement* E)
 	USceneComponent* Container = nullptr;
 	if (E->bIsRow)
 	{
+		if (E->Spacing == 0.f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s is a row and has to have a Spacing set."), *E->ElementName);
+			return;
+		}
+
 
 		if (!RowsContainer)
 		{
@@ -176,7 +184,7 @@ void ACorridorGenerator::SetContainerRotation(USceneComponent* Container, bool b
 	PlanarLookDirection.Z = 0.f;
 	PlanarLookDirection = PlanarLookDirection.GetSafeNormal();
 
-	if(bPlanar)
+	if (bPlanar)
 	{
 		LookDirection.Z = 0.f;
 		LookDirection = LookDirection.GetSafeNormal();
@@ -226,16 +234,14 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement* E, int NumberOf
 
 		Support->SetRelativeLocation(FVector(XPos, YPos * dir, ZPos));
 
-		/// TODO: Make YSize work
-
-	/*	if (E->YSize == 0.f)
+		if (E->YSize == 0.f)
+		{
+			Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
+		}
+		else
 		{
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, E->YSize / 100.f));
 		}
-		else
-		{*/
-			Support->SetRelativeScale3D(FVector(1.f, 1.f, RoofHeight / 100.f));
-		//}
 	}
 }
 

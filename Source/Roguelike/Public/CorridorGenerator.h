@@ -43,7 +43,6 @@ struct FCorridorElement
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 	float Spacing;
 
-	/// Todo: Make sure setting it to 0 actually works.
 	//If this is set to 0 the RoofHeight will be used.
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 		float YSize = 0.f;
@@ -74,22 +73,10 @@ public:
 		UStaticMesh* Floor;
 	UPROPERTY(EditAnywhere, Category = "Meshes")
 		UStaticMesh* Roof;
-	//UPROPERTY(EditAnywhere, Category = "Meshes")
-	//	UStaticMesh* RoofSupport;
-
-
-	//UPROPERTY(EditAnywhere, Category = "Size Parameters")
-	//	float Width = 2.f;
 
 	UPROPERTY(EditAnywhere, Category = "Size Parameters", meta = (MakeEditWidget))
 		FVector Controller = FVector(50.0f, .0f, 0.f);
 
-	//UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
-	//	float RoofHeight = 200.f;
-	//UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
-	//	float RoofSupportSpacing = 100.f;
-	//UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
-	//	float RoofSupportEdgeOffset = 30.f;
 	UPROPERTY(EditAnywhere, Category = "Debugging")
 		bool bGenerateInTick;
 
