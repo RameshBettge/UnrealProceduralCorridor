@@ -48,6 +48,7 @@ struct FCorridorElement
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bIsRow"))
 		float YSize = 0.f;
 
+	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Container = nullptr;
 
 	FCorridorElement(FString Name, UStaticMesh* Mesh, float Height, float Width)
@@ -89,11 +90,8 @@ public:
 	//	float RoofSupportSpacing = 100.f;
 	//UPROPERTY(EditAnywhere, Category = "Size Parameters|Roof")
 	//	float RoofSupportEdgeOffset = 30.f;
-
-	//UPROPERTY(EditAnywhere, Category = "Debugging")
-	//	TArray<UStaticMeshComponent*> Supports;
-	//UPROPERTY(EditAnywhere, Category = "Debugging")
-	//	bool bGenerateInTick;
+	UPROPERTY(EditAnywhere, Category = "Debugging")
+		bool bGenerateInTick;
 
 
 
@@ -101,23 +99,10 @@ private:
 	UPROPERTY(meta = (MakeEditWidget))
 		FVector Root = FVector::ZeroVector;
 
-	/// UProperties are set so I can move the Containers.
-	//UPROPERTY(EditAnywhere, Category = "Debugging")
-	//	USceneComponent* ZRotator;
-	//UPROPERTY(EditAnywhere, Category = "Debugging")
-	//	USceneComponent* FloorScaler;
-	//UPROPERTY(EditAnywhere, Category = "Debugging")
-	//	USceneComponent* RoofScaler;
-
 private:
 	float GetPlanarMagnitude(FVector);
 
-	void CreateSupports();
-	void ClearSupports();
-	void InstantiateSupportRow(int NumberOfSupports, float YPos, FString SideName);
 	UStaticMeshComponent* InstantiateMesh(UStaticMesh* Mesh, USceneComponent* Parent, FName MeshName = TEXT("Mesh"));
-
-
 
 	UPROPERTY(EditAnywhere, Category = "Modular")
 	float FloorWidth;
@@ -132,18 +117,26 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Modular")
 	TArray<FCorridorElement> Elements;
+
+	UPROPERTY(VisibleAnywhere)
 	FCorridorElement FloorElement;
+	UPROPERTY(VisibleAnywhere)
 	FCorridorElement RoofElement;
 
 	TArray<USceneComponent*> Containers;
 	USceneComponent* RowsContainer = nullptr;
 
 	void CreateModular();
-	void CreateElement(FCorridorElement E);
+	void CreateElement(FCorridorElement* E);
 	void SetContainerPosition(FCorridorElement Element);
 	void SetContainerScale(FCorridorElement Element);
-	void SetContainerRotation(FCorridorElement Element, bool planar = false);
+	void SetContainerRotation(USceneComponent* Container, bool planar = false);
 
-	void CreateModularRow(FCorridorElement Element);
-	void InstantiateModularRow(FCorridorElement E, int NumberOfSupports, int dir, FString SideName);
+	void CreateModularRow(FCorridorElement* Element);
+	void InstantiateModularRow(FCorridorElement* E, int NumberOfSupports, int dir, FString SideName);
+
+	void UpdateSingleElement(FCorridorElement E, FVector LookDir);
+	void ClearRowContainer();
+
+	void CreateFloorAndRoof();
 };
