@@ -79,6 +79,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Debugging")
 		bool bGenerateInTick;
+	UPROPERTY(EditAnywhere, Category = "Debugging", meta = (EditCondition = "bGenerateInTick"))
+		bool bTickInEditor;
+	virtual bool ShouldTickIfViewportsOnly() const override;
 
 
 
@@ -113,8 +116,8 @@ private:
 	TArray<USceneComponent*> Containers;
 	USceneComponent* RowsContainer = nullptr;
 
-	void CreateModular();
-	void CreateElement(FCorridorElement* E);
+	void CreateModular(bool bDisplayErrors = false);
+	void CreateElement(FCorridorElement* E, bool bDisplayErrors = false);
 	void SetContainerPosition(FCorridorElement Element);
 	void SetContainerScale(FCorridorElement Element);
 	void SetContainerRotation(USceneComponent* Container, bool planar = false);
@@ -122,7 +125,6 @@ private:
 	void CreateModularRow(FCorridorElement* Element);
 	void InstantiateModularRow(FCorridorElement* E, int NumberOfSupports, int dir, FString SideName);
 
-	void UpdateSingleElement(FCorridorElement E, FVector LookDir);
 	void ClearRowContainer();
 
 	void CreateFloorAndRoof();

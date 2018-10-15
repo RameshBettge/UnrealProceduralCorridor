@@ -10,21 +10,29 @@ ACorridorGenerator::ACorridorGenerator()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+bool ACorridorGenerator::ShouldTickIfViewportsOnly() const
+{
+	return bTickInEditor;
+}
+
 void ACorridorGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CreateModular();
+	// Setting true as a parameter in BeginPlay only makes sure that an error is displayed only once.
+	CreateModular(true);
 }
 
 void ACorridorGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// TODO: Check if values changed enough to justify instancing everything again.
-
-
 	if (!bGenerateInTick) { return; }
+
+	// This makes adding Elements possible.
+	if (bTickInEditor) { CreateModular(); }
+
+	// TODO: Check if values changed enough to justify instancing rows, floor and roof again. OR: Update only if key is pressed
 
 	if (RowsContainer)
 	{
@@ -66,9 +74,6 @@ UStaticMeshComponent * ACorridorGenerator::InstantiateMesh(UStaticMesh * Mesh, U
 		return nullptr;
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("Instantiating %s"), *MeshName.ToString());
-
-
 	UStaticMeshComponent* MeshComponent = NewObject<UStaticMeshComponent>(Parent, MeshName);
 
 	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
@@ -81,30 +86,35 @@ UStaticMeshComponent * ACorridorGenerator::InstantiateMesh(UStaticMesh * Mesh, U
 	return MeshComponent;
 }
 
-void ACorridorGenerator::CreateModular()
+void ACorridorGenerator::CreateModular(bool bDisplayErrors)
 {
-	if (RoofWidth == 0.f) { RoofWidth = FloorWidth; }
-
 	CreateFloorAndRoof();
 
 	for (int32 i = 0; i < Elements.Num(); i++)
 	{
-		CreateElement(&Elements[i]);
+		/// Create Element, if it hasn't been created already. Important if bGenerateInTick == true
+		if (!Elements[i].Container) 
+		{
+		CreateElement(&Elements[i], bDisplayErrors);
+		}
 	}
 }
 
-void ACorridorGenerator::CreateFloorAndRoof() {
+void ACorridorGenerator::CreateFloorAndRoof() 
+{
+	if (RoofWidth == 0.f) { RoofWidth = FloorWidth; }
+
 	FloorElement = FCorridorElement("Floor", Floor, 0.f, FloorWidth);
 	RoofElement = FCorridorElement("Roof", Roof, RoofHeight, RoofWidth);
 	CreateElement(&FloorElement);
 	CreateElement(&RoofElement);
 }
 
-void ACorridorGenerator::CreateElement(FCorridorElement* E)
+void ACorridorGenerator::CreateElement(FCorridorElement* E, bool bDisplayErrors)
 {
 	if (!E->Mesh)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s is unassigned!"), *E->ElementName);
+		if (bDisplayErrors) { UE_LOG(LogTemp, Error, TEXT("%s is unassigned!"), *E->ElementName); }
 		return;
 	}
 
@@ -113,7 +123,7 @@ void ACorridorGenerator::CreateElement(FCorridorElement* E)
 	{
 		if (E->Spacing == 0.f)
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s is a row and has to have a Spacing set."), *E->ElementName);
+			if (bDisplayErrors) { UE_LOG(LogTemp, Error, TEXT("%s is a row and has to have a Spacing set."), *E->ElementName); }
 			return;
 		}
 
@@ -243,12 +253,6 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement* E, int NumberOf
 			Support->SetRelativeScale3D(FVector(1.f, 1.f, E->YSize / 100.f));
 		}
 	}
-}
-
-void ACorridorGenerator::UpdateSingleElement(FCorridorElement E, FVector LookDir)
-{
-	E.Container->SetRelativeRotation(LookDir.ToOrientationQuat());
-
 }
 
 void ACorridorGenerator::ClearRowContainer()
