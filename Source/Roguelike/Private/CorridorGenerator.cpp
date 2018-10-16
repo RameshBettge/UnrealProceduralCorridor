@@ -4,6 +4,8 @@
 #include "GenericPlatform/GenericPlatformMath.h"
 
 
+/// TODO: Make sure the parent object can be rotated. (calculate the containerRotation with the world space in mind)
+
 // Sets default values
 ACorridorGenerator::ACorridorGenerator()
 {
@@ -12,7 +14,7 @@ ACorridorGenerator::ACorridorGenerator()
 
 bool ACorridorGenerator::ShouldTickIfViewportsOnly() const
 {
-	return (bTickInEditor || ClearAll);
+	return (bTickInEditor || ClearAll || UpdateSettings);
 }
 
 void ACorridorGenerator::BeginPlay()
@@ -20,26 +22,27 @@ void ACorridorGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	// Setting true as a parameter in BeginPlay only makes sure that an error is displayed only once.
-	CreateModular(true);
+	//CreateModular(true);
 }
 
 void ACorridorGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// GenerateOnce is set to false at the end of UpdateCorridor().
 	if (bGenerateInTick) { UpdateCorridor(); }
 	if(UpdateSettings)
 	{
 		ClearEverything();
 		CreateModular(true);
+		UpdateCorridor();
 		UpdateSettings = false;
 	}
 
 	if (ClearAll)
 	{
+		if (bGenerateInTick) { UE_LOG(LogTemp, Warning, TEXT("CorridorGenerator: Turn off bGenerateInTick if you want to Clear all.")); }
+
 		ClearEverything();
-		//CreateModular(true);
 		ClearAll = false;
 	}
 
@@ -56,6 +59,7 @@ void ACorridorGenerator::UpdateCorridor()
 	{
 		SetContainerRotation(RowsContainer, true);
 		ClearContainer(RowsContainer);
+		RowsContainer->SetRelativeLocation(GetActorLocation());
 	}
 
 	for (FCorridorElement E : Elements)
@@ -68,7 +72,7 @@ void ACorridorGenerator::UpdateCorridor()
 		}
 		else
 		{
-
+			SetContainerPosition(E);
 			SetContainerRotation(E.Container);
 			SetContainerScale(E);
 		}
@@ -193,6 +197,7 @@ void ACorridorGenerator::CreateElement(FCorridorElement* E, bool bDisplayErrors)
 
 void ACorridorGenerator::SetContainerPosition(FCorridorElement Element)
 {
+	// TODO: Check if this if statement and it's content has any functionality (Rows offset is set to each mesh instance seperately in another function -> this may have to change)
 	if (Element.bUseAutoEdgeOffset)
 	{
 		Element.SideOffset = AutoEdgeOffset;
@@ -285,7 +290,7 @@ void ACorridorGenerator::InstantiateModularRow(FCorridorElement* E, int NumberOf
 void ACorridorGenerator::ClearContainer(USceneComponent* Container, bool bDelete)
 {
 	if (!Container) {  
-		UE_LOG(LogTemp, Warning, TEXT("Container already deleted!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Container already deleted!"));
 		return; }
 	TArray<USceneComponent*> Components;
 
@@ -321,7 +326,9 @@ void ACorridorGenerator::ClearEverything()
 
 		ClearContainer(Elements[i].Container, true);
 		Elements[i].Container = nullptr;
+		
 	}
+	RowsContainer = nullptr;
 	//UE_LOG(LogTemp, Warning, TEXT("Clearing FloorElement ..."));
 	ClearContainer(FloorElement.Container, true);
 	//UE_LOG(LogTemp, Warning, TEXT("Clearing RoofElement ..."));
