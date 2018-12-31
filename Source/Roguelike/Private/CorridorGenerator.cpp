@@ -131,10 +131,11 @@ void ACorridorGenerator::CreateModular(bool bDisplayErrors)
 
 void ACorridorGenerator::CreateFloorAndRoof()
 {
-	if (RoofWidth == 0.f) { RoofWidth = FloorWidth; }
+	float actualRoofWidth = RoofWidth;
+	if (RoofWidth == 0.f) { actualRoofWidth = FloorWidth; }
 
 	FloorElement = FCorridorElement("Floor", Floor, 0.f, FloorWidth);
-	RoofElement = FCorridorElement("Roof", Roof, RoofHeight, RoofWidth);
+	RoofElement = FCorridorElement("Roof", Roof, RoofHeight, actualRoofWidth);
 	CreateElement(&FloorElement);
 	CreateElement(&RoofElement);
 }
